@@ -1,0 +1,51 @@
+- set_fact:
+    ci_jira_task: "{{ ci_jira_github_branch | regex_search(ci_jira_tasks_filter) }}"
+
+- name: Found Jira task
+  debug:
+    msg: "{{ ci_jira_task }}"
+
+- name: Get comments from Jira task {{ ci_jira_task }}
+  uri:
+    url: "{{ ci_jira_api }}/issue/{{ ci_jira_task }}/comment"
+    method: GET
+    body: "{{ ci_jira_message }}"
+    body_format: json
+    user: '{{ ci_jira_username }}'
+    password: '{{ ci_jira_password }}'
+    force_basic_auth: yes
+    status_code: 200
+  register: ci_jira_task_comments
+  when: ci_jira_api != "" and ci_jira_task != ""
+
+- set_fact:
+    ci_jira_task_comment_id: "{{ ci_jira_task_comments.json.comments[-1].id }}"
+  when: |
+    ci_jira_api != "" and ci_jira_task != ""
+    and (ci_jira_task_comments.json.comments | default([])) | length > 0
+    and 'panel:title=Continuous Integration' in ci_jira_task_comments.json.comments[-1].body
+    and '/pull/' + ci_jira_github_pr|string + ']' in ci_jira_task_comments.json.comments[-1].body
+
+- name: Add comment to Jira task {{ ci_jira_task }}
+  uri:
+    url: "{{ ci_jira_api }}/issue/{{ ci_jira_task }}/comment"
+    method: POST
+    body: "{{ ci_jira_message }}"
+    body_format: json
+    user: '{{ ci_jira_username }}'
+    password: '{{ ci_jira_password }}'
+    force_basic_auth: yes
+    status_code: 201
+  when: ci_jira_api != "" and ci_jira_task != "" and ci_jira_task_comment_id is not defined
+
+- name: Update comment in Jira task {{ ci_jira_task }}
+  uri:
+    url: "{{ ci_jira_api }}/issue/{{ ci_jira_task }}/comment/{{ ci_jira_task_comment_id }}"
+    method: PUT
+    body: "{{ ci_jira_message }}"
+    body_format: json
+    user: '{{ ci_jira_username }}'
+    password: '{{ ci_jira_password }}'
+    force_basic_auth: yes
+    status_code: 200
+  when: ci_jira_api != "" and ci_jira_task != "" and ci_jira_task_comment_id is defined

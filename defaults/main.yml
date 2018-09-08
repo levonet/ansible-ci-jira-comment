@@ -1,0 +1,21 @@
+---
+# Define it in playbook:
+ci_jira_api: ""
+ci_jira_username:
+ci_jira_password:
+ci_jira_github_branch:
+ci_jira_github_pr:
+ci_jira_github_repository_url:
+ci_jira_tasks_filter: (TODO|BUGS)-\d+
+ci_jira_message_body: []
+
+# Don't change it:
+ci_jira_newline: |
+  &nbsp;
+ci_jira_message_body_default:
+- "* Github: [PR-{{ ci_jira_github_pr }}|{{ ci_jira_github_repository_url }}/pull/{{ ci_jira_github_pr }}]"
+ci_jira_message:
+  body: |
+    {panel:title=Continuous Integration|borderStyle=dashed|borderColor=#ccc|titleBGColor=#F7D6C1|bgColor=#FFFFCE}
+    {{ (ci_jira_message_body_default + ci_jira_message_body) | join(ci_jira_newline) }}
+    {panel}

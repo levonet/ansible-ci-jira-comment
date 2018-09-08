@@ -1,0 +1,36 @@
+---
+galaxy_info:
+  role_name: ci_jira_comment
+  author: Pavlo Bashynskyi
+  description: Add new or update last CI comment with build information to Jira task.
+  license: MIT
+  min_ansible_version: 2.3
+  platforms:
+    - name: Ubuntu
+      versions:
+        - all
+    - name: Debian
+      versions:
+        - all
+    - name: EL
+      versions:
+        - all
+    - name: Fedora
+      versions:
+        - all
+    - name: opensuse
+      versions:
+        - all
+    - name: SLES
+      versions:
+        - all
+    - name: MacOSX
+      versions:
+        - all
+  cloud_platforms: []
+  galaxy_tags: 
+   - ci
+   - cd
+   - jira
+
+dependencies: []
