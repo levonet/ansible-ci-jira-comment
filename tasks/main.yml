@@ -1,5 +1,5 @@
 - set_fact:
-    ci_jira_task: "{{ ci_jira_github_branch | regex_search(ci_jira_tasks_filter) }}"
+    ci_jira_task: "{{ ci_jira_github_branch | regex_search(ci_jira_task_filter) }}"
 
 - name: Found Jira task
   debug:
@@ -9,8 +9,6 @@
   uri:
     url: "{{ ci_jira_api }}/issue/{{ ci_jira_task }}/comment"
     method: GET
-    body: "{{ ci_jira_message }}"
-    body_format: json
     user: '{{ ci_jira_username }}'
     password: '{{ ci_jira_password }}'
     force_basic_auth: yes
@@ -25,6 +23,15 @@
     and (ci_jira_task_comments.json.comments | default([])) | length > 0
     and 'panel:title=Continuous Integration' in ci_jira_task_comments.json.comments[-1].body
     and '/pull/' + ci_jira_github_pr|string + ']' in ci_jira_task_comments.json.comments[-1].body
+
+- set_fact:
+    ci_jira_message:
+      body: |
+        {panel:title=Continuous Integration|borderStyle=dashed|borderColor=#ccc|titleBGColor=#F7D6C1|bgColor=#FFFFCE}
+        {% if ci_jira_github_pr != "" and ci_jira_github_repository_url != "" %}{{ ci_jira_message_body_default }}{% endif %}
+        {{ ci_jira_message_body }}
+        {panel}
+  when: ci_jira_api != "" and ci_jira_task != ""
 
 - name: Add comment to Jira task {{ ci_jira_task }}
   uri:

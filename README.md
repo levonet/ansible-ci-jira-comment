@@ -9,9 +9,9 @@ Add new or update last CI comment with build information to Jira task.
 - `ci_jira_password` (required): Jira password.
 - `ci_jira_github_branch` (required): Github branch name. Must include Jira task id. For example `TODO-44.feature`.
 - `ci_jira_github_pr` (required): Github Pull Request number.
-- `ci_jira_github_repository_url` (required): Github repository url.
-- `ci_jira_tasks_filter` (required): Regexp filter for Jira task from github branch. For example: `(TODO|BUGS)-\d+`.
-- `ci_jira_message_body` (optional): List with some messages from CI.
+- `ci_jira_github_repository_url` (optional): Github repository url.
+- `ci_jira_task_filter` (required): Regexp filter for Jira task from github branch. For example: `(TODO|BUGS)-\d+`.
+- `ci_jira_message_body` (optional): Some text messages with CI information.
 
 ## Example Playbook
 
@@ -26,11 +26,11 @@ Add new or update last CI comment with build information to Jira task.
     ci_jira_github_branch: "{{ github_branch }}"
     ci_jira_github_pr: "{{ github_pr_number }}"
     ci_jira_github_repository_url: https://github.com/myorg/myapp
-    ci_jira_tasks_filter: (MYAPPAPI|MYAPPDB|BUGS)-\d+
-    ci_jira_message_body:
-    - "* App: [pr-{{ ci_jira_github_pr }}.myapp.myorg.com|http://pr-{{ ci_jira_github_pr }}.myapp.myorg.com]"
-    - "* Logs: [myapp-PR-{{ ci_jira_github_pr }}|http://grafana.myorg.com/d/XxXxXx/logs?var-host=sandbox1&var-app=myapp-PR-{{ ci_jira_github_pr }}]"
-    - "* Jenkins: [PR-{{ ci_jira_github_pr }}|http://jenkins.myorg.com/job/myapp/view/change-requests/job/PR-{{ ci_jira_github_pr }}/]"
+    ci_jira_task_filter: (MYAPPAPI|MYAPPDB|BUGS)-\d+
+    ci_jira_message_body: |
+      * App: [pr-{{ ci_jira_github_pr }}.myapp.myorg.com|http://pr-{{ ci_jira_github_pr }}.myapp.myorg.com]
+      * Logs: [myapp-PR-{{ ci_jira_github_pr }}|http://grafana.myorg.com/d/XxXxXx/logs?var-host=sandbox1&var-app=myapp-PR-{{ ci_jira_github_pr }}]
+      * Jenkins: [PR-{{ ci_jira_github_pr }}|http://jenkins.myorg.com/job/myapp/view/change-requests/job/PR-{{ ci_jira_github_pr }}/]
   roles:
     - role: levonet.ci_jira_comment
 ```
