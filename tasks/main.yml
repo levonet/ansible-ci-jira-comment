@@ -1,4 +1,5 @@
-- set_fact:
+- name: Check Jira task in branch name
+  set_fact:
     ci_jira_task: "{{ ci_jira_github_branch | regex_search(ci_jira_task_filter) }}"
 
 - name: Found Jira task
@@ -14,24 +15,31 @@
     force_basic_auth: yes
     status_code: 200
   register: ci_jira_task_comments
-  when: ci_jira_api != "" and ci_jira_task != ""
+  when:
+  - ci_jira_api | length > 0
+  - ci_jira_task | length > 0
 
-- set_fact:
+- name: Find Jira comment id
+  set_fact:
     ci_jira_task_comment_id: "{{ ci_jira_task_comments.json.comments[-1].id }}"
-  when: |
-    ci_jira_api != "" and ci_jira_task != ""
-    and (ci_jira_task_comments.json.comments | default([])) | length > 0
-    and 'panel:title=Continuous Integration' in ci_jira_task_comments.json.comments[-1].body
-    and '/pull/' + ci_jira_github_pr|string + ']' in ci_jira_task_comments.json.comments[-1].body
+  when:
+  - ci_jira_api | length > 0
+  - ci_jira_task | length > 0
+  - (ci_jira_task_comments.json.comments | default([])) | length > 0
+  - ('panel:title=Continuous Integration') in ci_jira_task_comments.json.comments[-1].body
+  - ('/pull/' + ci_jira_github_pr|string + ']') in ci_jira_task_comments.json.comments[-1].body
 
-- set_fact:
+- name: Set message
+  set_fact:
     ci_jira_message:
       body: |
         {panel:title=Continuous Integration|borderStyle=dashed|borderColor=#ccc|titleBGColor=#F7D6C1|bgColor=#FFFFCE}
-        {% if ci_jira_github_pr != "" and ci_jira_github_repository_url != "" %}{{ ci_jira_message_body_default }}{% endif %}
+        {% if ci_jira_github_pr | length > 0 and ci_jira_github_repository_url | length > 0 %}{{ ci_jira_message_body_default }}{% endif %}
         {{ ci_jira_message_body }}
         {panel}
-  when: ci_jira_api != "" and ci_jira_task != ""
+  when:
+  - ci_jira_api | length > 0
+  - ci_jira_task | length > 0
 
 - name: Add comment to Jira task {{ ci_jira_task }}
   uri:
@@ -43,7 +51,10 @@
     password: '{{ ci_jira_password }}'
     force_basic_auth: yes
     status_code: 201
-  when: ci_jira_api != "" and ci_jira_task != "" and ci_jira_task_comment_id is not defined
+  when:
+  - ci_jira_api | length > 0
+  - ci_jira_task | length > 0
+  - ci_jira_task_comment_id is not defined
 
 - name: Update comment in Jira task {{ ci_jira_task }}
   uri:
@@ -55,4 +66,7 @@
     password: '{{ ci_jira_password }}'
     force_basic_auth: yes
     status_code: 200
-  when: ci_jira_api != "" and ci_jira_task != "" and ci_jira_task_comment_id is defined
+  when:
+  - ci_jira_api | length > 0
+  - ci_jira_task | length > 0
+  - ci_jira_task_comment_id is defined
