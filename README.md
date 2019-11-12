@@ -1,4 +1,5 @@
 # CI: Jira comment with build information
+[![Build Status](https://travis-ci.org/levonet/ansible-ci-jira-comment.svg?branch=master)](https://travis-ci.org/levonet/ansible-ci-jira-comment)
 
 Add new or update last CI comment with build information to Jira task.
 
