@@ -26,26 +26,42 @@
   - ci_jira_api | length > 0
   - ci_jira_task | length > 0
   - (ci_jira_task_comments.json.comments | default([])) | length > 0
-  - ('panel:title=Continuous Integration') in ci_jira_task_comments.json.comments[-1].body
-  - ('/pull/' + ci_jira_github_pr|string + ']') in ci_jira_task_comments.json.comments[-1].body
+  - ci_jira_message_title in ci_jira_task_comments.json.comments[-1].body
+  - ci_jira_message_body_default in ci_jira_task_comments.json.comments[-1].body
 
 - name: Set message
   set_fact:
-    ci_jira_message:
-      body: |
-        {panel:title=Continuous Integration|borderStyle=dashed|borderColor=#ccc|titleBGColor=#F7D6C1|bgColor=#FFFFCE}
-        {% if ci_jira_github_pr | length > 0 and ci_jira_github_repository_url | length > 0 %}{{ ci_jira_message_body_default }}{% endif %}
-        {{ ci_jira_message_body }}
-        {panel}
+    ci_jira_message: |
+      {{ ci_jira_message_wrapper_begin }}
+      {% if ci_jira_github_pr | length > 0 and ci_jira_github_repository_url | length > 0 %}{{ ci_jira_message_body_default }}{% endif %}
+      {{ ci_jira_message_body }}
+      {{ ci_jira_message_wrapper_end }}
   when:
   - ci_jira_api | length > 0
   - ci_jira_task | length > 0
+
+- name: Replace message in comment
+  set_fact:
+    ci_jira_message: "{{ ci_jira_task_comments.json.comments[-1].body | regex_replace(ci_jira_message_mask, ci_jira_message) }}"
+  when:
+  - ci_jira_task_comment_id is defined
+  - ci_jira_task_comments.json.comments[-1].body is search(ci_jira_message_mask)
+
+- name: Add message to comment
+  set_fact:
+    ci_jira_message: |
+      {{ ci_jira_task_comments.json.comments[-1].body }}
+      {{ ci_jira_message }}
+  when:
+  - ci_jira_task_comment_id is defined
+  - ci_jira_task_comments.json.comments[-1].body is not search(ci_jira_message_mask)
 
 - name: Add comment to Jira task {{ ci_jira_task }}
   uri:
     url: "{{ ci_jira_api }}/issue/{{ ci_jira_task }}/comment"
     method: POST
-    body: "{{ ci_jira_message }}"
+    body:
+      body: "{{ ci_jira_message }}"
     body_format: json
     user: '{{ ci_jira_username }}'
     password: '{{ ci_jira_password }}'
@@ -60,13 +76,12 @@
   uri:
     url: "{{ ci_jira_api }}/issue/{{ ci_jira_task }}/comment/{{ ci_jira_task_comment_id }}"
     method: PUT
-    body: "{{ ci_jira_message }}"
+    body:
+      body: "{{ ci_jira_message }}"
     body_format: json
     user: '{{ ci_jira_username }}'
     password: '{{ ci_jira_password }}'
     force_basic_auth: yes
     status_code: 200
   when:
-  - ci_jira_api | length > 0
-  - ci_jira_task | length > 0
   - ci_jira_task_comment_id is defined

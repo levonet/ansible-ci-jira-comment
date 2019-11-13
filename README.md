@@ -13,6 +13,8 @@ Add new or update last CI comment with build information to Jira task.
 - `ci_jira_github_repository_url` (optional): Github repository url.
 - `ci_jira_task_filter` (required): Regexp filter for Jira task from github branch. For example: `(TODO|BUGS)-\d+`.
 - `ci_jira_message_body` (optional): Some text messages with CI information.
+- `ci_jira_message_id` (optional): Unique text messages id. It needs if there should be more than one message in a Jira comment.
+- `ci_jira_message_title` (optional): Default `Continuous Integration`
 
 ## Example Playbook
 
