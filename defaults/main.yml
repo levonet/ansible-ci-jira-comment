@@ -8,7 +8,13 @@ ci_jira_github_pr:
 ci_jira_github_repository_url: ""
 ci_jira_task_filter: (TODO|BUGS)-\d+
 ci_jira_message_body: ""
+ci_jira_message_id: ""
+ci_jira_message_title: Continuous Integration
 
 # Don't change it:
+ci_jira_message_title_with_id: "{{ ci_jira_message_title }}{{ (ci_jira_message_id | length > 0) | ternary(' ' + ci_jira_message_id, '') }}"
+ci_jira_message_wrapper_begin: "{panel:title={{ ci_jira_message_title_with_id }}|borderStyle=dashed|borderColor=#ccc|titleBGColor=#f7d6c1|bgColor=#ffffce}"
+ci_jira_message_wrapper_end: "{panel}"
+ci_jira_message_mask: "(?s){{ ci_jira_message_wrapper_begin | regex_escape() }}.*?{{ ci_jira_message_wrapper_end | regex_escape() }}"
 ci_jira_message_body_default: |
   * Github: [PR-{{ ci_jira_github_pr }}|{{ ci_jira_github_repository_url }}/pull/{{ ci_jira_github_pr }}]

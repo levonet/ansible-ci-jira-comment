@@ -6,7 +6,7 @@
     ci_jira_api: https://test.atlassian.net/rest/api/2
     ci_jira_username: test
     ci_jira_password: test
-    ci_jira_github_branch: test
+    ci_jira_github_branch: test-0
     ci_jira_github_pr: "123"
     ci_jira_github_repository_url: https://github.com/test/test
     ci_jira_task_filter: (feat|fix|docs|style|refactor|test|chore)-\d+
