@@ -67,6 +67,8 @@
     password: '{{ ci_jira_password }}'
     force_basic_auth: yes
     status_code: 201
+  register: _ci_jira_result_uri
+  ignore_errors: "{{ ci_jira_ignore_errors }}"
   when:
   - ci_jira_api | length > 0
   - ci_jira_task | length > 0
@@ -85,3 +87,4 @@
     status_code: 200
   when:
   - ci_jira_task_comment_id is defined
+  - _ci_jira_result_uri is succeeded

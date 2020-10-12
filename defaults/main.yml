@@ -10,6 +10,7 @@ ci_jira_task_filter: (TODO|BUGS)-\d+
 ci_jira_message_body: ""
 ci_jira_message_id: ""
 ci_jira_message_title: Continuous Integration
+ci_jira_ignore_errors: no
 
 # Don't change it:
 ci_jira_message_title_with_id: "{{ ci_jira_message_title }}{{ (ci_jira_message_id | length > 0) | ternary(' ' + ci_jira_message_id, '') }}"
